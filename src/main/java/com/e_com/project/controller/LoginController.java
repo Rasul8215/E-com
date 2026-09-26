@@ -1,12 +1,10 @@
 package com.e_com.project.controller;
 
-import com.e_com.project.models.User;
 import com.e_com.project.service.LoginService;
 import com.e_com.project.validator.LoginValidator;
 import com.e_com.project.validator.RefreshTokenValidator;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,7 +19,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
-    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
     private final LoginService loginService;
 
     public LoginController(LoginService loginService) {
@@ -29,8 +26,13 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginValidator payload) {
-        return ResponseEntity.status(HttpStatus.OK).body(loginService.login(payload));
+    ResponseEntity<?> login(@Valid @RequestBody LoginValidator payload) {
+        try {
+            return ResponseEntity.ok(loginService.login(payload));
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid username or password"));
+        }
     }
 
     @PostMapping("/token")
