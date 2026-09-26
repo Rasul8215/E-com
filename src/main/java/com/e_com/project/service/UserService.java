@@ -6,6 +6,8 @@ import com.e_com.project.repository.UserRepo;
 import com.e_com.project.validator.UserValidator;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
     private final UserRepo userRepo;
@@ -19,6 +21,10 @@ public class UserService {
     public User createUser(UserValidator input) {
         User user = userMapper.toEntity(input);
         return userRepo.save(user);
+    }
+
+    public List<User> getUsers() {
+        return userRepo.findAll();
     }
 
 
